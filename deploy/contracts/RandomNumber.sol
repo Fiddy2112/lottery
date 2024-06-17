@@ -94,7 +94,7 @@ contract RandomNumber is VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         requestIds.push(requestId);
         lastRequestId = requestId;
         emit RequestSent(requestId, numWords);
-        return requestId;
+        return addmod(requestId, 1, 10);
     }
 
     function fulfillRandomWords(
@@ -111,17 +111,6 @@ contract RandomNumber is VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         );
     }
 
-
-    /**
-     * Allow withdraw of Link tokens from the contract
-     */
-    function withdrawLink() public onlyOwner {
-        LinkTokenInterface link = LinkTokenInterface(linkAddress);
-        require(
-            link.transfer(msg.sender, link.balanceOf(address(this))),
-            "Unable to transfer"
-        );
-    }
 
 
 
