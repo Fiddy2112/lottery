@@ -104,7 +104,7 @@ function requestRandomWords(
         requestIds.push(requestId);
         lastRequestId = requestId;
         emit RequestSent(requestId, numWords);
-        return addmod(requestId, 1, 10);
+        return requestId;
     }
 
 function fulfillRandomWords(
@@ -122,13 +122,14 @@ function fulfillRandomWords(
     }
 
 
-function pickWinner() public onlyOwner {
-uint index = lastRequestId % players.length;
-// send amount to winner
-players[index].transfer(address(this).balance);
 
-winnerHistory[lotteryId] = players[index];
-lotteryId++;
+function pickWinner() public onlyOwner {
+    uint index = lastRequestId % players.length;
+// send amount to winner
+    players[index].transfer(address(this).balance);
+
+    winnerHistory[lotteryId] = players[index];
+    lotteryId++;
 }
 
 function getWinnerByHistory(uint _lotteryId)public view returns(address payable){
