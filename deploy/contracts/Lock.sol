@@ -2,10 +2,9 @@
 
 pragma solidity >=0.8.0 <0.9.0;
 
-import {ConfirmedOwner} from "@chainlink/contracts@1.1.1/src/v0.8/shared/access/ConfirmedOwner.sol";
-import {LinkTokenInterface} from "@chainlink/contracts@1.1.1/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
-import {VRFV2PlusWrapperConsumerBase} from "@chainlink/contracts@1.1.1/src/v0.8/vrf/dev/VRFV2PlusWrapperConsumerBase.sol";
-import {VRFV2PlusClient} from "@chainlink/contracts@1.1.1/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
+import "@chainlink/contracts@1.1.1/src/v0.8/shared/access/ConfirmedOwner.sol";
+import "@chainlink/contracts@1.1.1/src/v0.8/vrf/dev/VRFV2PlusWrapperConsumerBase.sol";
+import "@chainlink/contracts@1.1.1/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
 contract Lottery is VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
 
@@ -104,7 +103,7 @@ function requestRandomWords(
         requestIds.push(requestId);
         lastRequestId = requestId;
         emit RequestSent(requestId, numWords);
-        return addmod(requestId, 1, 10);
+        return requestId;
     }
 
 function fulfillRandomWords(
@@ -122,13 +121,14 @@ function fulfillRandomWords(
     }
 
 
-function pickWinner() public onlyOwner {
-uint index = lastRequestId % players.length;
-// send amount to winner
-players[index].transfer(address(this).balance);
 
-winnerHistory[lotteryId] = players[index];
-lotteryId++;
+function pickWinner() public onlyOwner {
+    uint index = lastRequestId % players.length;
+// send amount to winner
+    players[index].transfer(address(this).balance);
+
+    winnerHistory[lotteryId] = players[index];
+    lotteryId++;
 }
 
 function getWinnerByHistory(uint _lotteryId)public view returns(address payable){
