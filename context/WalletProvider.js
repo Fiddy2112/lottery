@@ -2,10 +2,17 @@ import React, { createContext, useState } from "react";
 
 import { Web3 } from "web3";
 
+import LotteryABI from "../utils/Lottery.json";
+
 export const walletContext = createContext();
 
 export const WalletProvider = ({ children }) => {
   const [connectedAccount, setConnectedAccount] = useState("null");
+
+  //#Lottery - 0xc8D06e543879233F4d248095EceBC38d46c36AE0
+  const contractAddress = "0xc8D06e543879233F4d248095EceBC38d46c36AE0";
+
+  const contractABI = LotteryABI.abi;
 
   async function connectWallet() {
     //check metamask is installed

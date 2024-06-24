@@ -1,0 +1,7 @@
+// fix error install @chain/link with @openzepplin
+// https://ethereum.stackexchange.com/questions/124146/i-am-getting-a-source-error-when-importing-chainlink-my-project-will-compile
+{
+  "solidity.remappings": [
+    "@chainlink/=/Users/patrick/.brownie/packages/smartcontractkit/chainlink-brownie-contracts@1.1.1"
+  ]
+}
