@@ -8,4 +8,4 @@ export const showAddress = (address) => {
 export const numberFormat = (number) =>
   new Intl.NumberFormat().format(Number(number));
 
-export const stringToWei = (web3, number) => web3.utils.toWei(number, "ether");
+export const stringToWei = (web3, number) => web3?.utils.toWei(number, "ether");

@@ -4,8 +4,6 @@ import { numberFormat, stringToWei, showAddress } from "@/utils/Features";
 import { Inter } from "next/font/google";
 import Head from "next/head";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export default function Home() {
   const [pot, setPot] = useState(numberFormat(1000 / 0));
   const [players, setPlayers] = useState([]);
@@ -45,8 +43,9 @@ export default function Home() {
 
   const enterLottery = async () => {
     await contract?.methods.buyTicket().send({
-      from: contractAddress,
+      from: connectedAccount,
       value: stringToWei(web3, "0.0015"),
+      // value: web3?.utils.toWei("0.0015", "ether"),
       gas: 3000000,
       gasPrice: null,
     });
@@ -532,7 +531,7 @@ export default function Home() {
               <div className="flex flex-col">
                 <section className="mt-5">
                   <p>
-                    Enter the lottery bt sending 0.001 Ether (sepolia testnet)
+                    Enter the lottery bt sending 0.0015 Ether (sepolia testnet)
                   </p>{" "}
                   {/* 1000000000000000 wei */}
                   <button
@@ -540,7 +539,7 @@ export default function Home() {
                     type="button"
                     className="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600"
                   >
-                    Play now
+                    Buy now
                   </button>
                 </section>
 
@@ -558,7 +557,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col">
                 <div className="">
-                  <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                  <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[450px]">
                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                       Lottery History
                     </h5>
@@ -566,7 +565,7 @@ export default function Home() {
                     <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
                       winner #1
                     </p>
-                    <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+                    <p className="mb-3 font-normal text-gray-700 dark:text-gray-400 break-words">
                       0x3283caj...aud232d
                     </p>
                     <a
@@ -592,51 +591,34 @@ export default function Home() {
                     </a>
                   </div>
 
-                  <div className="max-w-sm p-6 mt-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                  <div className="max-w-sm p-6 mt-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[450px]">
                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                       Players
                     </h5>
 
-                    {players?.map((player, i) => {
+                    {players?.map((player, i) => (
                       <div className="" key={i}>
-                        <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                          {player}
-                          mpn
-                        </p>
                         <a
                           target="_blank"
                           href={`https://sepolia.etherscan.io/address/${player}`}
-                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white hover:text-white"
                         >
-                          Transaction
-                          <svg
-                            className="rtl:rotate-180 w-3.5 h-3.5 ms-2"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 14 10"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M1 5h12m0 0L9 1m4 4L9 9"
-                            />
-                          </svg>
+                          <p className="text-xl font-normal text-gray-700 dark:text-gray-400 break-words">
+                            {player}
+                          </p>
                         </a>
-                      </div>;
-                    })}
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="max-w-sm p-6 mt-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                  <div className="max-w-sm p-6 mt-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[450px]">
                     <a href="#">
                       <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                         Jack Pot
                       </h5>
                     </a>
-                    <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                      {pot}
+                    <p className="mb-3 text-2xl font-bold font-sans text-gray-700 dark:text-gray-400">
+                      {pot} Wei
                     </p>
                   </div>
                 </div>
@@ -645,10 +627,6 @@ export default function Home() {
           </section>
         </div>
       </main>
-      <hr />
-      <footer className="mt-2">
-        <p className="text-center">&copy; 2024 CopyRight</p>
-      </footer>
     </div>
   );
 }

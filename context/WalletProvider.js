@@ -26,11 +26,6 @@ export const WalletProvider = ({ children }) => {
         // instantiate Web3 with the injected provider
         const web3 = new Web3(window.ethereum);
         setWeb3(setWeb3);
-        if (window.ethereum) {
-          window.ethereum.on("accountChanged", () => {
-            window.location.reload();
-          });
-        }
         //request user to connect accounts (Metamask will prompt)
         await ethereum.request({
           method: "eth_requestAccounts",
@@ -42,7 +37,11 @@ export const WalletProvider = ({ children }) => {
         //show the first connected account in the react page
         setConnectedAccount(accounts[0]);
 
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
+        const contract = new web3.eth.Contract(
+          contractABI,
+          contractAddress,
+          web3
+        );
         console.log(contract);
         setContract(contract);
       } catch (err) {
