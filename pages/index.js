@@ -1,12 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { WalletContext } from "@/context/WalletProvider";
 import { numberFormat, stringToWei, showAddress } from "@/utils/Features";
-import { Inter } from "next/font/google";
+
 import Head from "next/head";
 
 export default function Home() {
   const [pot, setPot] = useState(numberFormat(1000 / 0));
   const [players, setPlayers] = useState([]);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const {
     connectWallet,
@@ -27,7 +29,7 @@ export default function Home() {
       setPot(numberFormat(1000 / 0));
       getAllPlayer([]);
     }
-  }, [contract, pot]);
+  }, [contract]);
 
   const getJackPot = async () => {
     const pot = await contract?.methods.getBalance().call();
@@ -36,19 +38,62 @@ export default function Home() {
   };
 
   const getAllPlayer = async () => {
-    const players = await contract?.methods.getPlayers().call();
-    console.log(players);
-    setPlayers(players);
+    const gplayers = await contract?.methods.getPlayers().call();
+    console.log(gplayers);
+    setPlayers(gplayers);
   };
 
   const enterLottery = async () => {
-    await contract?.methods.buyTicket().send({
-      from: connectedAccount,
-      value: stringToWei(web3, "0.0015"),
-      // value: web3?.utils.toWei("0.0015", "ether"),
-      gas: 3000000,
-      gasPrice: null,
-    });
+    try {
+      // setSuccess(false);
+      await contract?.methods.buyTicket().send({
+        from: connectedAccount,
+        // value: stringToWei(web3, "0.0015"),
+        value: web3?.utils.toWei("0.0015", "ether"),
+        // value: 1500000000000000,
+        gas: 3000000,
+        gasPrice: null,
+      });
+      // setSuccess(true);
+      // const myTimeout = setTimeout(() => {
+      //   location.reload();
+      // }, 3000);
+      // setSuccess(false);
+      // clearTimeout(myTimeout);
+    } catch (err) {
+      console.log(err);
+      setError(err.message);
+    }
+  };
+
+  // getrandom with chainlink
+  const randomNumber = async () => {
+    try {
+      const random = await contract?.methods.requestRandomWords(true).send({
+        from: connectedAccount,
+        value: web3?.utils.toWei("0,01", "ether"),
+        // value: 10000000000000000,
+        gas: 3000000,
+        gasPrice: null,
+      });
+
+      console.log(random);
+      setSuccess(true);
+    } catch (err) {
+      console.log(err);
+      setError(err.message);
+    }
+  };
+
+  const pickWinnerHandle = async () => {
+    try {
+      await randomNumber();
+      console.log("success complete");
+      setSuccess(false);
+    } catch (err) {
+      console.log(err);
+      setError(err.message);
+    }
   };
 
   return (
@@ -58,9 +103,9 @@ export default function Home() {
         <meta name="description" content="An Ethereum Lottery dApp" />
       </Head>
 
-      <main>
+      <main className="lg:w-full min-w-[600px]">
         <nav className="mt-4 mb-4">
-          <div className="container mx-auto flex items-center justify-between mt-2">
+          <div className="lg:container lg:mx-auto w-full mx-4 flex items-center justify-between mt-2 ">
             <div className="navbar-brand">
               <a href="">
                 <h1 className="text-3xl font-bold uppercase">Ether Lottery</h1>
@@ -525,10 +570,10 @@ export default function Home() {
             </div>
           </div>
         </nav>
-        <div className="mx-36">
+        <div className="mx-0 lg:mx-36">
           <section className="mt-5">
-            <div className="flex justify-evenly">
-              <div className="flex flex-col">
+            <div className="flex flex-col lg:flex-row justify-evenly">
+              <div className="flex lg:flex-col flex-row">
                 <section className="mt-5">
                   <p>
                     Enter the lottery bt sending 0.0015 Ether (sepolia testnet)
@@ -548,16 +593,21 @@ export default function Home() {
                     <b>Admin only:</b> Pick Winner
                   </p>{" "}
                   <button
+                    onClick={pickWinnerHandle}
                     type="button"
                     className="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600"
                   >
                     Pick now
                   </button>
                 </section>
+
+                <p className="text-xl font-sans text-[#c0392b] break-words">
+                  {error}
+                </p>
               </div>
               <div className="flex flex-col">
-                <div className="">
-                  <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[450px]">
+                <div className="lg:mx-0 mx-2">
+                  <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[550px]">
                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                       Lottery History
                     </h5>
@@ -591,27 +641,29 @@ export default function Home() {
                     </a>
                   </div>
 
-                  <div className="max-w-sm p-6 mt-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[450px]">
+                  <div className="max-w-sm p-6 mt-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[550px]">
                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                       Players
                     </h5>
 
-                    {players?.map((player, i) => (
-                      <div className="" key={i}>
-                        <a
-                          target="_blank"
-                          href={`https://sepolia.etherscan.io/address/${player}`}
-                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white hover:text-white"
-                        >
-                          <p className="text-xl font-normal text-gray-700 dark:text-gray-400 break-words">
-                            {player}
-                          </p>
-                        </a>
-                      </div>
-                    ))}
+                    {players &&
+                      players.length > 0 &&
+                      players?.map((player, i) => (
+                        <div className="" key={i}>
+                          <a
+                            target="_blank"
+                            href={`https://sepolia.etherscan.io/address/${player}`}
+                            className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white hover:text-white"
+                          >
+                            <p className="text-xl font-normal text-gray-700 dark:text-gray-400 break-words">
+                              {player}
+                            </p>
+                          </a>
+                        </div>
+                      ))}
                   </div>
 
-                  <div className="max-w-sm p-6 mt-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[450px]">
+                  <div className="max-w-sm p-6 mt-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 min-w-[550px]">
                     <a href="#">
                       <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                         Jack Pot
